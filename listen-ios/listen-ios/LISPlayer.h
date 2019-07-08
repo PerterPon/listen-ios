@@ -7,19 +7,26 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "LISData.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface LISPlayer : NSObject
+@interface LISPlayer : NSObject <LISDataProtocol>
     
-    @property (nonatomic, strong) NSString *baseUrl;
-    @property (nonatomic, strong) NSString *name;
-    
-    +(instancetype) shareInstance;
+@property (nonatomic, strong) NSString *name;
+@property (nonatomic, strong) AVPlayer *player;
 
-    -(void) initPlayer;
-    -(void) onFirstFregment:(NSString *)fregmentName;
-    -(void) onMediaFregment:(NSString *)fregmentId;
++(instancetype) shareInstance;
+
+-(void) initPlayer;
+
+-(void) play;
+
+-(void) pause;
+
+-(void) resume;
+
+-(void) stop;
 
 @end
 

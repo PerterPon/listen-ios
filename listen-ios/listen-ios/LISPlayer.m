@@ -7,37 +7,58 @@
 //
 
 #import "LISPlayer.h"
-
-dispatch_queue_t queue;
+#import <AVFoundation/AVFoundation.h>
 
 @implementation LISPlayer
+
+static LISPlayer *player = nil;
+
++(instancetype) shareInstance {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        player = [[self alloc] init];
+        LISData *data = [LISData shareInstance];
+        data.delegate = player;
+    });
     
-    static LISPlayer *player = nil;
+    return player;
+}
+
+-(void) initPlayer {
+    LISData *data = [LISData shareInstance];
+    [data initData];
+}
+
+-(void) play {
     
-    +(instancetype) shareInstance {
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            player = [[self alloc] init];
-        });
-        queue = dispatch_queue_create("pon.listen.player", DISPATCH_QUEUE_SERIAL);
-        
-        return player;
+}
+
+-(void) pause {
+    
+}
+
+-(void) resume {
+    
+}
+
+-(void) stop {
+    
+}
+
+#pragma mark - lisData delegate
+
+-(void) dataDidReceiveFirstFregment {
+    
+}
+
+-(void) dataDidReceiveMediaFregmentWithNumber:(int)number {
+    LISData *data = [LISData shareInstance];
+    NSLog(@"did receive data with times: %d, length: %lu", number, (unsigned long)data.data.length);
+    if (2 <= number) {
+        AVAudioSession *session = [AVAudioSession sharedInstance];
+        [session setCategory:AVAudioSessionCategoryPlayback error:nil];
+        [session setActive:YES error:nil];
     }
-    
-    -(void) initPlayer {
-        
-    }
-    
-    -(void) onFirstFregment:(NSString *)fregmentName {
-        dispatch_async(queue, ^{
-            NSLog(@"first fregment %@", fregmentName);
-        });
-    }
-    
-    -(void) onMediaFregment:(NSString *)fregmentId {
-        dispatch_async(queue, ^{
-            NSLog(@"media fregment %@", fregmentId);
-        });
-    }
+}
 
 @end

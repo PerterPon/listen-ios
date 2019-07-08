@@ -8,6 +8,7 @@ target 'listen-ios' do
   # Pods for listen-ios
   pod 'SocketRocket'
   pod 'MD5Digest'
+  pod 'AFNetworking', '~> 3.0'
 
   target 'listen-iosTests' do
     inherit! :search_paths

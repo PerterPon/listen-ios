@@ -9,7 +9,7 @@
 #import "LISConnection.h"
 #import "LISEtc.h"
 #import <NSString+MD5.h>
-#import "LISPlayer.h"
+#import "LISData.h"
 
 @implementation LISConnection
     
@@ -168,21 +168,21 @@
         }
         
         NSString *eventName = data[@"event"];
-        LISPlayer *player = [LISPlayer shareInstance];
+        LISData *lisData = [LISData shareInstance];
 
         if([@"register" isEqualToString:eventName]) {
             NSDictionary *eventData = data[@"data"];
             NSString *firstFregment = eventData[@"firstFregment"];
             NSString *baseUrl = eventData[@"baseUrl"];
             NSNumber *latestFregment = eventData[@"latestFregment"];
-            player.baseUrl = baseUrl;
-            [player onFirstFregment:firstFregment];
-            [player onMediaFregment:[latestFregment stringValue]];
+            lisData.baseUrl = baseUrl;
+            [lisData onFirstFregment:firstFregment];
+            [lisData onMediaFregment:[latestFregment stringValue]];
         } else if ([@"pong" isEqualToString:eventName]) {
             [self pong];
         } else if ([@"mediaFregment" isEqualToString:eventName]) {
             NSNumber *fregmentId = data[@"data"];
-            [player onMediaFregment:[fregmentId stringValue]];
+            [lisData onMediaFregment:[fregmentId stringValue]];
         }
     }
     
