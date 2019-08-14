@@ -10,6 +10,7 @@
 #import "LISEtc.h"
 #import "LISPlayer.h"
 #import "LISConnection.h"
+#import <AVFoundation/AVFoundation.h>
 
 @interface AppDelegate ()
 
@@ -20,6 +21,9 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
+    AVAudioSession *session = [AVAudioSession sharedInstance];
+    [session setCategory:AVAudioSessionCategoryPlayback error:nil];
+    [session setActive:YES error:nil];
     [self initApp];
     return YES;
 }
@@ -27,9 +31,16 @@
 - (void)initApp {
     [[LISEtc shareInstance] initConfig];
     [[LISConnection shareInstance] initConnection];
-    [[LISPlayer shareInstance] initPlayer];
-    
     [LISConnection shareInstance].channelName = @"bbcWorldService";
+
+    [[LISPlayer shareInstance] initPlayer];
+    [[LISData shareInstance] initData];
+    [LISData shareInstance].delegate = [LISPlayer shareInstance];
+    
+//    LISPlayer *player = [[LISPlayer alloc] init];
+//    [player initPlayer];
+    
+    
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

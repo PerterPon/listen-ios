@@ -7,14 +7,22 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "LISQueuePlayer.h"
 #import "LISData.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+@protocol LISPlayerDelegate <NSObject>
+
+-(void) playDidFinishPlayDataWith: (NSNumber *)size;
+
+@end
+
 @interface LISPlayer : NSObject <LISDataProtocol>
-    
+
 @property (nonatomic, strong) NSString *name;
-@property (nonatomic, strong) AVPlayer *player;
+@property (nonatomic, weak) id <LISPlayerDelegate> delegate;
+@property (nonatomic, strong) LISQueuePlayer *queuePlayer;
 
 +(instancetype) shareInstance;
 

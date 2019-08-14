@@ -10,6 +10,15 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+struct FirstFregment {
+    NSString *duration;
+    NSString *timescale;
+    NSString *codecs;
+    NSString *mimeType;
+    NSString *sampleRate;
+    NSString *fileName;
+};
+
 @protocol LISDataProtocol <NSObject>
 
 -(void) dataDidReceiveFirstFregment;
@@ -28,11 +37,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic) BOOL loading;
 @property (nonatomic, strong, nullable) NSData *firstFregment;
+@property (nonatomic) struct FirstFregment firstFregmentData;
 
 +(instancetype) shareInstance;
 
 -(void) initData;
--(void) onFirstFregment:(NSString *)fregmentName;
+-(void) onFirstFregment:(NSDictionary *)firstFregment;
 -(void) onMediaFregment:(NSString *)fregmentId;
 
 -(void) clearData;

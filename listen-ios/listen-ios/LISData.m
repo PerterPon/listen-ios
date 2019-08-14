@@ -36,19 +36,27 @@ static LISData *data;
 
 -(void) clearData {
     self.data = [[NSMutableData alloc] init];
-    [self.data appendData:self.firstFregment];
 }
 
--(void) onFirstFregment:(NSString *)fregmentName {
-//    NSLog(@"did receive first fregment");
-    NSString *urlString = [NSString stringWithFormat:@"%@/%@", self.baseUrl, fregmentName];
+-(void) onFirstFregment: (NSDictionary *)firstFregment{
+    NSLog(@"did receive first fregment");
+    struct FirstFregment firstFregmentData;
+    firstFregmentData.codecs = firstFregment[@"codecs"];
+    firstFregmentData.duration = firstFregment[@"duration"];
+    firstFregmentData.timescale = firstFregment[@"timescale"];
+    firstFregmentData.mimeType = firstFregment[@"mimeType"];
+    firstFregmentData.sampleRate = firstFregment[@"sampleRate"];
+    firstFregmentData.fileName =firstFregment[@"fileName"];
+    self.firstFregmentData = firstFregmentData;
+
+    NSString *urlString = [NSString stringWithFormat:@"%@/%@", self.baseUrl, firstFregmentData.fileName];
     [self.requestQueue addObject:urlString];
     [self requestFile];
 }
 
 -(void) onMediaFregment:(NSString *)fregmentId {
 //    NSLog(@"did receive media fregment");
-    NSString *urlString = [NSString stringWithFormat:@"%@/%@.m4s", self.baseUrl, fregmentId];
+    NSString *urlString = [NSString stringWithFormat:@"%@/%@.mp3", self.baseUrl, fregmentId];
     [self.requestQueue addObject:urlString];
     [self requestFile];
 }
@@ -69,6 +77,7 @@ static LISData *data;
         NSLog(@"failed too much times ignore");
         [self.requestQueue removeObjectAtIndex:0];
         failedTimes = 0;
+        return;
     }
 
     NSString *urlString = [self.requestQueue objectAtIndex:0];
@@ -76,29 +85,37 @@ static LISData *data;
     
     LISEtc *etc = [LISEtc shareInstance];
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", etc.cdnDomain, urlString]];
-    NSLog(@"request with url: %@", url);
+//    NSLog(@"request with url: %@", url);
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     self.loading = YES;
+    NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];//获取当前时间0秒后的时间
+    NSTimeInterval before = [date timeIntervalSince1970];
     NSURLSessionDataTask *dataTask = [session
                                       dataTaskWithRequest: request
                                       completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
                                           self.loading = NO;
-                                          NSLog(@"load success");
                                           if (error) {
                                               NSLog(@"download with error");
                                               [self doRequest:failedTimes + 1];
                                               return;
                                           }
+                                          NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];//获取当前时间0秒后的时间
+                                          NSTimeInterval after = [date timeIntervalSince1970];
+                                          NSLog(@"下载数据包花费时间：%f", after - before);
                                           [self.requestQueue removeObjectAtIndex:0];
-                                          [self.data appendData:data];
+                                          if (YES == [urlString containsString:@".dash"]) {
+                                              self.firstFregment = data;
+                                          } else {
+                                              [self.data appendData:data];
+                                          }
                                           [self doRequest:0];
                                           self.mediaFregmentCount++;
-                                          [self triggerDelegateWith:urlString];
+                                          [self triggerDelegateWith:urlString andData:data];
                                       }];
     [dataTask resume];
 }
 
--(void) triggerDelegateWith: (NSString *)urlString {
+-(void) triggerDelegateWith: (NSString *)urlString andData: (NSData *)data {
     if (self.delegate) {
         if (YES == [urlString containsString:@".dash"]) {
             [self.delegate dataDidReceiveFirstFregment];
@@ -122,7 +139,6 @@ static LISData *data;
                                               NSLog(@"download with error");
                                               return;
                                           }
-
                                           [self.data appendData:data];
                                       }];
     [dataTask resume];

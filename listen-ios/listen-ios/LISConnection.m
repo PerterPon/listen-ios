@@ -11,6 +11,15 @@
 #import <NSString+MD5.h>
 #import "LISData.h"
 
+@interface LISConnection()
+
+{
+    NSTimer *pingTimer;
+    NSTimeInterval lastReceive;
+}
+
+@end
+
 @implementation LISConnection
     
     static LISConnection *connection = nil;
@@ -112,7 +121,7 @@
     
     -(void) pong {
         [self stopHeartBeat];
-        [NSTimer scheduledTimerWithTimeInterval:20 repeats:NO block:^(NSTimer * _Nonnull timer) {
+        pingTimer = [NSTimer scheduledTimerWithTimeInterval:20 repeats:NO block:^(NSTimer * _Nonnull timer) {
             [self ping];
         }];
     }
@@ -120,6 +129,10 @@
     -(void) stopHeartBeat {
         if (YES == self.heartBeat.isValid) {
             [self.heartBeat invalidate];
+        }
+        if (pingTimer) {
+            [pingTimer invalidate];
+            pingTimer = nil;
         }
         self.heartBeat = nil;
     }
@@ -172,17 +185,26 @@
 
         if([@"register" isEqualToString:eventName]) {
             NSDictionary *eventData = data[@"data"];
-            NSString *firstFregment = eventData[@"firstFregment"];
+            NSDictionary *firstFregment = eventData[@"firstFregment"];
             NSString *baseUrl = eventData[@"baseUrl"];
-            NSNumber *latestFregment = eventData[@"latestFregment"];
+            NSArray *latestFregments = eventData[@"latestFregments"];
             lisData.baseUrl = baseUrl;
-            [lisData onFirstFregment:firstFregment];
-            [lisData onMediaFregment:[latestFregment stringValue]];
+            
+//            if (latestFregments[0] != [NSNull null]) {
+//                [lisData onMediaFregment:[latestFregments[0] stringValue]];
+//            }
+            if (latestFregments[1] != [NSNull null]) {
+                [lisData onMediaFregment:[latestFregments[1] stringValue]];
+            }
         } else if ([@"pong" isEqualToString:eventName]) {
             [self pong];
         } else if ([@"mediaFregment" isEqualToString:eventName]) {
             NSNumber *fregmentId = data[@"data"];
             [lisData onMediaFregment:[fregmentId stringValue]];
+            NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];//获取当前时间0秒后的时间
+            NSTimeInterval time=[date timeIntervalSince1970];
+            NSLog(@"接收时间差值：%f", time - lastReceive);
+            lastReceive = time;
         }
     }
     
