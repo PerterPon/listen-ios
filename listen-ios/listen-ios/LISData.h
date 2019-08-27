@@ -42,8 +42,9 @@ struct FirstFregment {
 +(instancetype) shareInstance;
 
 -(void) initData;
--(void) onFirstFregment:(NSDictionary *)firstFregment;
--(void) onMediaFregment:(NSString *)fregmentId;
+-(void) startWith: (NSString *)name;
+//-(void) onFirstFregment:(NSDictionary *)firstFregment;
+//-(void) onMediaFregment:(NSString *)fregmentId;
 
 -(void) clearData;
 @end

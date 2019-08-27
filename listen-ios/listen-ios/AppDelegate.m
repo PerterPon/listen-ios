@@ -11,6 +11,9 @@
 #import "LISPlayer.h"
 #import "LISConnection.h"
 #import <AVFoundation/AVFoundation.h>
+#import "DCLog/DCLog.h"
+#import <MediaPlayer/MediaPlayer.h>
+#import "LISQueueData.h"
 
 @interface AppDelegate ()
 
@@ -25,18 +28,47 @@
     [session setCategory:AVAudioSessionCategoryPlayback error:nil];
     [session setActive:YES error:nil];
     [self initApp];
+    [DCLog setLogViewEnabled:YES];
+    [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
+
+    NSMutableDictionary *songDict = [NSMutableDictionary dictionary];
+    
+    // 音频名字
+    [songDict setObject:@"bbcWorldService"  forKey:MPMediaItemPropertyTitle];
+    
+    // 歌手
+    [songDict setObject:@"bbc"  forKey:MPMediaItemPropertyArtist];
+    
+    // 歌曲的总时间
+    [songDict setObject:@(9999999999) forKeyedSubscript:MPMediaItemPropertyPlaybackDuration];
+    
+    // 当前时间
+    [songDict setObject:@(1) forKey:MPNowPlayingInfoPropertyElapsedPlaybackTime];
+    
+    // 播放速率
+    [songDict setObject:@(1.0) forKey:MPNowPlayingInfoPropertyPlaybackRate];
+    
+    // 设置控制中心歌曲信息
+    [[MPNowPlayingInfoCenter defaultCenter] setNowPlayingInfo:songDict];
+    
+    [self createRemoteCommandCenter];
     return YES;
 }
 
 - (void)initApp {
     [[LISEtc shareInstance] initConfig];
-    [[LISConnection shareInstance] initConnection];
-    [LISConnection shareInstance].channelName = @"bbcWorldService";
+//    [[LISConnection shareInstance] initConnection];
+//    [LISConnection shareInstance].channelName = @"bbcWorldService";
 
     [[LISPlayer shareInstance] initPlayer];
-    [[LISData shareInstance] initData];
-    [LISData shareInstance].delegate = [LISPlayer shareInstance];
-    
+//    [[LISRadioData shareInstance] initData];
+//    [LISRadioData shareInstance].delegate = [LISPlayer shareInstance];
+//    [[LISRadioData shareInstance] startWith:@"bbcWorldService"];
+//    [[LISData shareInstance] initData];
+//    [LISData shareInstance].delegate = [LISPlayer shareInstance];
+    LISQueueData *queueData = [[LISQueueData shareInstance] init];
+    queueData.delegate = [LISPlayer shareInstance];
+    [queueData startWith:@"bbcWorldService" duration:@1];
 //    LISPlayer *player = [[LISPlayer alloc] init];
 //    [player initPlayer];
     
@@ -51,6 +83,11 @@
 - (void)applicationDidEnterBackground:(UIApplication *)application {
     // Use this method to release shared resources, save user data, invalidate timers, and store enough application state information to restore your application to its current state in case it is terminated later.
     // If your application supports background execution, this method is called instead of applicationWillTerminate: when the user quits.
+    UIApplication*  app = [UIApplication sharedApplication];
+    self.bgTask = [app beginBackgroundTaskWithExpirationHandler:^{
+        [app endBackgroundTask:self.bgTask];
+        self.bgTask = UIBackgroundTaskInvalid;
+    }];
 }
 
 
@@ -114,6 +151,49 @@
         NSLog(@"Unresolved error %@, %@", error, error.userInfo);
         abort();
     }
+}
+
+- (void) remoteControlReceivedWithEvent:(UIEvent *)event {
+    if (event.type == UIEventTypeRemoteControl) {
+        switch (event.subtype) {
+            case UIEventSubtypeRemoteControlPause:
+                [[LISPlayer shareInstance] pause];
+                break;
+            case UIEventSubtypeRemoteControlPlay:
+                [[LISPlayer shareInstance] resume];
+            default:
+                break;
+        }
+//        NSLog(@"%ld",event.subtype);
+//        if (event.subtype == UIEventSubtype.)
+        
+    }
+}
+
+- (void)createRemoteCommandCenter{
+    
+    MPRemoteCommandCenter *commandCenter = [MPRemoteCommandCenter sharedCommandCenter];
+    
+    [commandCenter.pauseCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+//        [[LISPlayer shareInstance] pause];
+//        [self.player pause];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }];
+    [commandCenter.playCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+//        [self.player play];
+        return MPRemoteCommandHandlerStatusSuccess;
+    }];
+    //    [commandCenter.previousTrackCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+    //        NSLog(@"上一首");
+    //        return MPRemoteCommandHandlerStatusSuccess;
+    //    }];
+    
+//    [commandCenter.nextTrackCommand addTargetWithHandler:^MPRemoteCommandHandlerStatus(MPRemoteCommandEvent * _Nonnull event) {
+//        NSLog(@"下一首");
+//        return MPRemoteCommandHandlerStatusSuccess;
+//    }];
+    
+    
 }
 
 @end

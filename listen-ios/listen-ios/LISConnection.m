@@ -16,6 +16,7 @@
 {
     NSTimer *pingTimer;
     NSTimeInterval lastReceive;
+    NSMutableArray *latestReceivedFregment;
 }
 
 @end
@@ -29,6 +30,7 @@
         dispatch_once(&onceToken, ^{
             connection = [[self alloc] init];
             connection.commandQueue = [[NSMutableArray alloc] init];
+            connection.channelName = @"";
         });
         
         return connection;
@@ -45,11 +47,12 @@
         self.socket = [[SRWebSocket alloc] initWithURLRequest:request];
         self.socket.delegate = self;
         [self.socket open];
+        latestReceivedFregment = [[NSMutableArray alloc] init];
     }
     
     -(void) changeChannelName2:(NSString *)name {
         self.channelName = name;
-        
+        latestReceivedFregment = [[NSMutableArray alloc] init];
         // only if socket is fine
         if (self.socket && 1 == self.socket.readyState) {
             [self register2Listen];
@@ -66,18 +69,27 @@
     }
     
     -(void) register2Listen {
+        if ([@"" isEqualToString:self.channelName]) {
+            return;
+        }
+
         NSDate *now = [NSDate dateWithTimeIntervalSinceNow:0];
         NSTimeInterval time = [now timeIntervalSince1970] * 1000;
         NSString *timeString = [NSString stringWithFormat:@"%.0f", time];
         NSString *salt = [LISEtc shareInstance].salt;
         NSString *targetString = [NSString stringWithFormat:@"%@%@", salt, timeString];
         NSString *sign = [targetString MD5Digest];
+        NSNumber *latestFregmentId = @1;
+        if ([latestReceivedFregment count] > 0) {
+            latestFregmentId = [latestReceivedFregment lastObject];
+        }
         NSDictionary *registerDic = @{
                                        @"event": @"register",
                                        @"data": @{
                                                @"timestamp": [NSNumber numberWithDouble:[timeString doubleValue]],
                                                @"sign": sign,
-                                               @"name": self.channelName
+                                               @"name": self.channelName,
+                                               @"latestFregmentId": latestFregmentId
                                                }
                                        };
         NSError *error;
@@ -185,24 +197,27 @@
 
         if([@"register" isEqualToString:eventName]) {
             NSDictionary *eventData = data[@"data"];
-            NSDictionary *firstFregment = eventData[@"firstFregment"];
+//            NSDictionary *firstFregment = eventData[@"firstFregment"];
             NSString *baseUrl = eventData[@"baseUrl"];
             NSArray *latestFregments = eventData[@"latestFregments"];
             lisData.baseUrl = baseUrl;
             
-//            if (latestFregments[0] != [NSNull null]) {
+            if (latestFregments[0] != [NSNull null] && false == [latestReceivedFregment containsObject:latestFregments[0]]) {
 //                [lisData onMediaFregment:[latestFregments[0] stringValue]];
-//            }
-            if (latestFregments[1] != [NSNull null]) {
-                [lisData onMediaFregment:[latestFregments[1] stringValue]];
+                [self add2LatestReceiveFregment: latestFregments[0]];
+            }
+            if (latestFregments[1] != [NSNull null] && false == [latestReceivedFregment containsObject:latestFregments[1]]) {
+//                [lisData onMediaFregment:[latestFregments[1] stringValue]];
+                [self add2LatestReceiveFregment: latestFregments[1]];
             }
         } else if ([@"pong" isEqualToString:eventName]) {
             [self pong];
         } else if ([@"mediaFregment" isEqualToString:eventName]) {
             NSNumber *fregmentId = data[@"data"];
-            [lisData onMediaFregment:[fregmentId stringValue]];
+//            [lisData onMediaFregment:[fregmentId stringValue]];
             NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];//获取当前时间0秒后的时间
             NSTimeInterval time=[date timeIntervalSince1970];
+            [self add2LatestReceiveFregment:fregmentId];
             NSLog(@"接收时间差值：%f", time - lastReceive);
             lastReceive = time;
         }
@@ -217,5 +232,12 @@
         NSLog(@"ws close reason: [%@], code: [%ld]", reason, code);
         [self reconnection];
     }
-    
+
+    - (void) add2LatestReceiveFregment:(NSNumber *)fregmentId {
+        [latestReceivedFregment addObject:fregmentId];
+        if ([latestReceivedFregment count] >= 10) {
+            [latestReceivedFregment removeObjectAtIndex:0];
+        }
+    }
+
 @end

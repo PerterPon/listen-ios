@@ -8,10 +8,13 @@
 
 #import "LISQueuePlayer.h"
 #import <AudioToolbox/AudioToolbox.h>
-#import "LISData.h"
+#import <NSString+MD5.h>
+//#import "LISData.h"
+//#import "LISRadioData.h"
+#import "LISQueueData.h"
 
 #define NUM_BUFFERS 3
-static UInt32 gBufferSizeBytes = 0x10000;//It muse be pow(2,x)
+static UInt32 gBufferSizeBytes = 0x8000;//It muse be pow(2,x)
 
 @interface LISQueuePlayer() {
     AudioFileID audioFile;
@@ -24,6 +27,8 @@ static UInt32 gBufferSizeBytes = 0x10000;//It muse be pow(2,x)
     AudioQueueBufferRef buffers[NUM_BUFFERS];
     UInt32 maxPacketSize;
     AudioQueueBufferRef latestBuffer;
+    
+    BOOL pausing;
 }
 
 @end
@@ -37,7 +42,7 @@ static OSStatus readProc(
                          void   *buffer,
                          UInt32 *actualCount
                          ) {
-    LISData *lisData = [LISData shareInstance];
+    LISQueueData *lisData = [LISQueueData shareInstance];
     
     size_t bytes_to_read = requestCount;
     
@@ -54,7 +59,7 @@ static OSStatus readProc(
 }
 
 static SInt64 getSizeProc(void *inClientData) {
-    LISData *lisData = [LISData shareInstance];
+    LISQueueData *lisData = [LISQueueData shareInstance];
     size_t dataSize = lisData.data.length;
     return dataSize;
 }
@@ -67,8 +72,38 @@ static void BufferCallback(void *inUserData,AudioQueueRef inAQ,
 }
 
 - (void) play {
-    AudioQueueStart(queue, nil);
-    self.playying = YES;
+    if (NO == pausing) {
+        AudioQueueStart(queue, nil);
+        self.playying = YES;
+    }
+}
+
+- (void) pause {
+    AudioQueuePause(queue);
+    self.playying = NO;
+    pausing = YES;
+    [self emptyBuffers];
+}
+
+- (void) resume {
+    [self refillBuffes];
+    pausing = NO;
+    [self play];
+}
+
+- (void) emptyBuffers {
+    if (nil == latestBuffer) {
+        NSLog(@"没有需要清理的buffer");
+        return;
+    }
+    
+    AudioQueueBufferRef buffer = latestBuffer;
+    while (true) {
+        if (0 != buffer -> mAudioDataByteSize) {
+            break;
+        }
+        buffer -> mAudioDataByteSize = 0;
+    }
 }
 
 - (void) refillBuffes {
@@ -93,9 +128,17 @@ static void BufferCallback(void *inUserData,AudioQueueRef inAQ,
     int i;
     OSStatus status;
     
+    pausing = NO;
+    
     status = AudioFileOpenWithCallbacks((__bridge void * _Nonnull)(self), readProc, NULL, getSizeProc, NULL, 0, &audioFile);
     if (noErr != status) {
         NSLog(@"open file with error");
+        NSTimer *timer = [NSTimer timerWithTimeInterval:3.0f repeats:NO block:^(NSTimer * _Nonnull timer) {
+            [self initQueue];
+        }];
+
+        self.timer = timer;
+        [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSDefaultRunLoopMode];
         return;
     }
     
@@ -141,15 +184,17 @@ static void BufferCallback(void *inUserData,AudioQueueRef inAQ,
     
     latestBuffer = nil;
     
-    Float32 gain = 1.0;
+    Float32 gain = 2;
     AudioQueueSetParameter(queue, kAudioQueueParam_Volume, gain);
 }
 
 - (int) readPacketTo:(AudioQueueBufferRef) buffer {
+    
     UInt32 numBytes, numPackets;
     
     numPackets = numPacketsToRead;
     AudioFileReadPackets(audioFile, NO, &numBytes, packetDesc, 0, &numPackets, buffer->mAudioData);
+
     if (0 == numBytes) {
         buffer -> mAudioDataByteSize = 0;
         if (nil == latestBuffer) {
@@ -162,8 +207,9 @@ static void BufferCallback(void *inUserData,AudioQueueRef inAQ,
     if (numPackets > 0) {
         buffer -> mAudioDataByteSize = numBytes;
         AudioQueueEnqueueBuffer(queue, buffer, (packetDesc ? numPackets : 0), packetDesc);
-        LISData *lisData = [LISData shareInstance];
+        LISQueueData *lisData = [LISQueueData shareInstance];
         [lisData.data replaceBytesInRange:NSMakeRange(0, numBytes) withBytes:NULL length:0];
+//        NSLog(@"data remain lengeh: %lu", (unsigned long)lisData.data.length);
         return 0;
     } else {
         return 1;

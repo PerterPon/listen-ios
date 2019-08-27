@@ -8,7 +8,9 @@
 
 #import <Foundation/Foundation.h>
 #import "LISQueuePlayer.h"
-#import "LISData.h"
+//#import "LISData.h"
+#import "LISRadioData.h"
+#import "LISQueueData.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -18,7 +20,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface LISPlayer : NSObject <LISDataProtocol>
+@interface LISPlayer : NSObject <LISQueueDataDelegate>
 
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, weak) id <LISPlayerDelegate> delegate;

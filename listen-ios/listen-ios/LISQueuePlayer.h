@@ -13,10 +13,15 @@ NS_ASSUME_NONNULL_BEGIN
 @interface LISQueuePlayer : NSObject
 
 @property (nonatomic) BOOL playying;
+@property (nonatomic, retain) NSTimer *timer;
 
 - (void) initQueue;
 
 - (void) play;
+
+- (void) pause;
+
+- (void) resume;
 
 - (BOOL) isStopped;
 

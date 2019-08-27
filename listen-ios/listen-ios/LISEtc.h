@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface LISEtc : NSObject
     @property (nonatomic, assign) NSString *domain;
     @property (nonatomic, assign) int port;
+    @property (nonatomic, assign) NSString *httpsDomain;
     @property (nonatomic, assign) NSString *salt;
     @property (nonatomic, assign) NSString *cdnDomain;
 

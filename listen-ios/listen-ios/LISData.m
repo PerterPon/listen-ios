@@ -38,6 +38,11 @@ static LISData *data;
     self.data = [[NSMutableData alloc] init];
 }
 
+-(void) startWith:(NSString *)name {
+    LISEtc *config = [LISEtc shareInstance];
+    
+}
+
 -(void) onFirstFregment: (NSDictionary *)firstFregment{
     NSLog(@"did receive first fregment");
     struct FirstFregment firstFregmentData;
@@ -85,7 +90,7 @@ static LISData *data;
     
     LISEtc *etc = [LISEtc shareInstance];
     NSURL *url = [NSURL URLWithString:[NSString stringWithFormat:@"%@/%@", etc.cdnDomain, urlString]];
-//    NSLog(@"request with url: %@", url);
+    NSLog(@"request with url: %@", url);
     NSURLRequest *request = [NSURLRequest requestWithURL:url];
     self.loading = YES;
     NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];//获取当前时间0秒后的时间

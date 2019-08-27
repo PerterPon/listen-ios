@@ -28,6 +28,7 @@ static LISPlayer *player = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         player = [[self alloc] init];
+        
 //        LISData *data = [LISData shareInstance];
 //        data.delegate = player;
     });
@@ -43,10 +44,41 @@ static LISPlayer *player = nil;
 //    [data initData];
 }
 
+- (void) pause {
+    [self.queuePlayer pause];
+    [[LISQueueData shareInstance] pause];
+}
+
+- (void) play {
+    
+}
+
+- (void) resume {
+    [self.queuePlayer resume];
+    [[LISQueueData shareInstance] resume];
+}
+
+- (void) stop {
+//    [self.queuePlayer stop]
+}
+
 -(void) startPlay {
     self.queuePlayer = [[LISQueuePlayer alloc] init];
     [self.queuePlayer initQueue];
     [self.queuePlayer play];
+}
+
+#pragma mark - lisRadioData delegate
+
+-(void) onFirstDataReceived {
+    [self startPlay];
+}
+
+-(void) onDataReceived {
+    if (NO == self.queuePlayer.playying) {
+        [self.queuePlayer refillBuffes];
+        [self.queuePlayer play];
+    }
 }
 
 #pragma mark - lisData delegate
