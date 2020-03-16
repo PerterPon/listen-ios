@@ -66,15 +66,20 @@ static LISPlayer *player = nil;
     self.queuePlayer = [[LISQueuePlayer alloc] init];
     [self.queuePlayer initQueue];
     [self.queuePlayer play];
+    
 }
 
 #pragma mark - lisRadioData delegate
 
--(void) onFirstDataReceived {
-    [self startPlay];
+- (void) onFirstDataReceived {
+    if (nil == self.queuePlayer) {
+        [self startPlay];
+    } else {
+        [self onDataReceived];
+    }
 }
 
--(void) onDataReceived {
+- (void) onDataReceived {
     if (NO == self.queuePlayer.playying) {
         [self.queuePlayer refillBuffes];
         [self.queuePlayer play];

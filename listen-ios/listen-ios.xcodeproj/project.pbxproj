@@ -13,6 +13,7 @@
 		FA01D27322D22DD000A71CCE /* LISConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = FA01D27222D22DD000A71CCE /* LISConnection.m */; };
 		FA01D27622D22DE200A71CCE /* LISPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = FA01D27522D22DE200A71CCE /* LISPlayer.m */; };
 		FA01D27922D2304D00A71CCE /* LISEtc.m in Sources */ = {isa = PBXBuildFile; fileRef = FA01D27822D2304D00A71CCE /* LISEtc.m */; };
+		FA0F72D4241F5C30000A12E3 /* LISRadioDataNew.m in Sources */ = {isa = PBXBuildFile; fileRef = FA0F72D3241F5C30000A12E3 /* LISRadioDataNew.m */; };
 		FA35DB0022F7266F0009A662 /* LISQueuePlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = FA35DAFF22F7266F0009A662 /* LISQueuePlayer.m */; };
 		FA4E5DE722D1FE1100E679EF /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = FA4E5DE622D1FE1100E679EF /* AppDelegate.m */; };
 		FA4E5DEA22D1FE1100E679EF /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FA4E5DE922D1FE1100E679EF /* ViewController.m */; };
@@ -75,6 +76,8 @@
 		FA01D27522D22DE200A71CCE /* LISPlayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LISPlayer.m; sourceTree = "<group>"; };
 		FA01D27722D2304D00A71CCE /* LISEtc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LISEtc.h; sourceTree = "<group>"; };
 		FA01D27822D2304D00A71CCE /* LISEtc.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LISEtc.m; sourceTree = "<group>"; };
+		FA0F72D2241F5C30000A12E3 /* LISRadioDataNew.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LISRadioDataNew.h; sourceTree = "<group>"; };
+		FA0F72D3241F5C30000A12E3 /* LISRadioDataNew.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LISRadioDataNew.m; sourceTree = "<group>"; };
 		FA35DAFE22F7266F0009A662 /* LISQueuePlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LISQueuePlayer.h; sourceTree = "<group>"; };
 		FA35DAFF22F7266F0009A662 /* LISQueuePlayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LISQueuePlayer.m; sourceTree = "<group>"; };
 		FA4E5DE222D1FE1100E679EF /* listen-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "listen-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -258,6 +261,8 @@
 				FA01D27822D2304D00A71CCE /* LISEtc.m */,
 				FA7DFC2522D38E4700AFF9D2 /* LISData.h */,
 				FA7DFC2622D38E4700AFF9D2 /* LISData.m */,
+				FA0F72D2241F5C30000A12E3 /* LISRadioDataNew.h */,
+				FA0F72D3241F5C30000A12E3 /* LISRadioDataNew.m */,
 				FA735904230949610038AF24 /* LISRadioData.h */,
 				FA735905230949610038AF24 /* LISRadioData.m */,
 				FAADA4E3231133D0005A7B59 /* LISQueueData.h */,
@@ -495,6 +500,7 @@
 				FA4E5DE722D1FE1100E679EF /* AppDelegate.m in Sources */,
 				FA65D7AB230C43CB00ABA5DA /* DCLog.m in Sources */,
 				FA4E5DF822D1FE1200E679EF /* main.m in Sources */,
+				FA0F72D4241F5C30000A12E3 /* LISRadioDataNew.m in Sources */,
 				FA735906230949610038AF24 /* LISRadioData.m in Sources */,
 				FA01D27322D22DD000A71CCE /* LISConnection.m in Sources */,
 				FACC1ECE2303FC58001F7CA3 /* ListenPlayer.m in Sources */,
