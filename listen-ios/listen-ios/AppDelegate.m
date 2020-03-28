@@ -9,11 +9,11 @@
 #import "AppDelegate.h"
 #import "LISEtc.h"
 #import "LISPlayer.h"
-#import "LISConnection.h"
 #import <AVFoundation/AVFoundation.h>
 #import "DCLog/DCLog.h"
 #import <MediaPlayer/MediaPlayer.h>
-#import "LISQueueData.h"
+//#import "LISQueueData.h"
+#import "LISRadioDataNew.h"
 
 @interface AppDelegate ()
 
@@ -28,7 +28,7 @@
     [session setCategory:AVAudioSessionCategoryPlayback error:nil];
     [session setActive:YES error:nil];
     [self initApp];
-    [DCLog setLogViewEnabled:YES];
+    [DCLog setLogViewEnabled:NO];
     [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
 
     NSMutableDictionary *songDict = [NSMutableDictionary dictionary];
@@ -66,13 +66,10 @@
 //    [[LISRadioData shareInstance] startWith:@"bbcWorldService"];
 //    [[LISData shareInstance] initData];
 //    [LISData shareInstance].delegate = [LISPlayer shareInstance];
-    LISQueueData *queueData = [[LISQueueData shareInstance] init];
-    queueData.delegate = [LISPlayer shareInstance];
-    [queueData startWith:@"bbcWorldService" duration:@1];
-//    LISPlayer *player = [[LISPlayer alloc] init];
-//    [player initPlayer];
-    
-    
+
+    LISRadioDataNew *queueDataNew = [[LISRadioDataNew shareInstance] init];
+    queueDataNew.delegate = [LISPlayer shareInstance];
+    [queueDataNew startWith:@"bbcWorldService"];
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {

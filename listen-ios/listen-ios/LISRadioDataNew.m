@@ -18,6 +18,7 @@
     int doneFregmentId;
     int currentFregmentId;
     int baselineFregmentId;
+    int latestAddedFregmentId;
     NSMutableDictionary *queueRequestMap;
     NSMutableDictionary *queueDataMap;
 }
@@ -120,14 +121,17 @@ static LISRadioDataNew *radioData;
 }
 
 - (void) loadMuteData {
-    
+    NSString *muteFile = [[NSBundle mainBundle] pathForResource:@"mute" ofType:@"mp3"];
+    NSData *muteData = [NSData dataWithContentsOfFile:muteFile];
+    [self.data appendData:muteData];
 }
 
 - (void) startQueue {
-    
+    [self startTimeline];
 }
 
 - (void) startTimeline {
+    NSLog(@"=================== restart timeline===========================");
     self -> currentFregmentId = [self generateCurrentFregmentId];
 
     // 1. clear current data
@@ -156,14 +160,15 @@ static LISRadioDataNew *radioData;
     // 2. load start fregment
     [self loadStartFregment:^{
         // 3. start first play
+        // in the init situation, we let the latestAddedFregmentId equal to currentFregmentId - 3
         [self assemblyDataWith:self -> currentFregmentId - 2];
         [self assemblyDataWith:self -> currentFregmentId - 1];
         [self.delegate onFirstDataReceived];
         // 4. start nature clock to schdule the timeline.
         [self startNatureClock];
-    } :^{
+    } :^(NSInteger code){
         // if failed, recall ths function again.
-        NSLog(@"load start fegment failed! restart after 5 sec!");
+        NSLog(@"load start fegment failed! restart after 5 sec!, error code: [%ld]", code);
         [NSTimer scheduledTimerWithTimeInterval:5 repeats:NO block:^(NSTimer * _Nonnull timer) {
             [self startTimeline];
         }];
@@ -173,22 +178,24 @@ static LISRadioDataNew *radioData;
 - (void) startNatureClock {
     NSNumber *duration = self.radioInfo.fregmentDuration;
     // for the first time
-    [self ticktock];
+    [self ticktock: 0];
     
-    self.timer = [NSTimer scheduledTimerWithTimeInterval:[duration doubleValue] repeats:YES block:^(NSTimer * _Nonnull timer) {
+    self.timer = [NSTimer timerWithTimeInterval:[duration doubleValue] repeats:YES block:^(NSTimer * _Nonnull timer) {
         self -> currentFregmentId = [self generateCurrentFregmentId];
-        [self ticktock];
+        [self ticktock: 0];
     }];
+    [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
 }
 
-- (void) ticktock {
+- (void) ticktock: (int) retryTimes {
     int requestFregmentId = self -> currentFregmentId;
     NSDate *startTime = [NSDate date];
     [self loadFregmentWith: requestFregmentId :^(NSData *data) {
         NSDate *endTime = [NSDate date];
         int nowFregmentId = self -> currentFregmentId;
+        NSLog(@"======= ticktock done: [%d]", nowFregmentId);
         // 1. first of all, this reqest is success, so we need insert data for this request.
-        NSString *stringId = [NSString stringWithFormat:@"%id", requestFregmentId];
+        NSString *stringId = [NSString stringWithFormat:@"%d", requestFregmentId];
         NSDictionary *dataMap = @{
             @"data": data,
             @"startTime": startTime,
@@ -197,43 +204,67 @@ static LISRadioDataNew *radioData;
         };
         // 1.1 insert data
         [self -> queueDataMap setObject: dataMap forKey:stringId];
-        // 1.2 delete expired data
-        NSString *expiredId = [NSString stringWithFormat:@"%d", requestFregmentId - 3];
-        [self -> queueDataMap removeObjectForKey:expiredId];
 
         // 2. check the data sequence, if need abandon some data.
-        BOOL res = [self checkIfCanAssemblyData:nowFregmentId :requestFregmentId];
+        NSArray *assemblyFregments = [self calculateCanAssemblyData:nowFregmentId :requestFregmentId];
         // 2.1 no data assembly, need check sequence
-        if (false == res && nowFregmentId - requestFregmentId >= 3) {
+        if (0 == assemblyFregments.count && nowFregmentId - self -> latestAddedFregmentId >= 3) {
             // all data can not be used, we need restart timeline.
             [self startTimeline];
         } else {
-            // 3. notify the player to play data.
-            [self.delegate onDataReceived];
+            for (int i = 0; i < assemblyFregments.count; i++) {
+                NSNumber *targetFregmentId = assemblyFregments[i];
+                [self assemblyDataWith:[targetFregmentId intValue]];
+            }
+            if (0 < assemblyFregments.count) {
+                // 3. notify the player to play data.
+                [self.delegate onDataReceived];
+            }
         }
-    } :^{
-        
+    } :^(NSInteger code){
+        NSLog(@"faild to request: [%d], code: [%ld]", requestFregmentId, code);
+
+        // if the request failed, when the current fregment id is aloso the same fregment, we could retry the request
+        __block int currentRetryTimes = retryTimes;
+        if (requestFregmentId == self -> currentFregmentId && retryTimes <= 3) {
+            currentRetryTimes++;
+
+            // if internet connection was down, then we can wait 1 second to wait connect back.
+            if (-1009 == code) {
+                NSLog(@"delay retry, %d", requestFregmentId);
+                NSTimer *timer = [NSTimer timerWithTimeInterval:1.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
+                    [self ticktock:currentRetryTimes];
+                }];
+                [[NSRunLoop mainRunLoop] addTimer:timer forMode:NSRunLoopCommonModes];
+            } else {
+                [self ticktock: currentRetryTimes];
+            }
+        }
     }];
 }
 
-- (BOOL) checkIfCanAssemblyData: (int)nowFregmentId :(int)requestFregmentId {
+- (NSArray *) calculateCanAssemblyData: (int)nowFregmentId :(int)requestFregmentId {
     // check last1 and last2 sequence is ready
-    BOOL result = NO;
-    if (requestFregmentId == nowFregmentId) {
-        NSMutableDictionary *last1Data = [self -> queueDataMap objectForKey:[NSString stringWithFormat:@"%d", requestFregmentId - 1]];
-        NSMutableDictionary *last2Data = [self -> queueDataMap objectForKey:[NSString stringWithFormat:@"%d", requestFregmentId - 2]];
-        // best situation, no data delay.
-        if (nil != last1Data && nil != last2Data){
-            [self assemblyDataWith:requestFregmentId];
-            [self -> queueDataMap removeObjectForKey:[NSString stringWithFormat:@"%d", requestFregmentId - 2]];
-            result = YES;
-        } else {
-            // there is some data not ready, just return no.
-            result = NO;
-        }
-    } else if (requestFregmentId == nowFregmentId - 1) {
-        NSMutableDictionary *last1Data = [self -> queueDataMap objectForKey:[NSString stringWithFormat:@"%d", requestFregmentId - 1]];
+    NSMutableArray *result = [[NSMutableArray alloc] init];
+    int latestFregmentId = self -> latestAddedFregmentId;
+    // if the request fregment id did not equal to
+    NSLog(@"requestFregmentId: %d, latestFregmentId: %d", requestFregmentId, latestFregmentId);
+    if (1 != requestFregmentId - latestFregmentId) {
+        return result;
     }
+    
+    [result addObject:[NSNumber numberWithInt:requestFregmentId]];
+    int disFregments = nowFregmentId - requestFregmentId;
+    for (int i = 1; i <= disFregments; i++) {
+        int checkFregmentId = requestFregmentId + i;
+        NSString *stringId = [NSString stringWithFormat:@"%d", checkFregmentId];
+        NSDictionary *data = self -> queueDataMap[stringId];
+        if (nil != data) {
+            break;
+        }
+        [result addObject:[NSNumber numberWithInt:checkFregmentId]];
+    }
+    
     return result;
 }
 
@@ -241,12 +272,15 @@ static LISRadioDataNew *radioData;
     NSString *stringId = [NSString stringWithFormat:@"%d", fregmentId];
     NSMutableDictionary *data = [self -> queueDataMap objectForKey:stringId];
     if (data) {
-        [data setObject:@1 forKey:@"complete"];
+//        [data setObject:@1 forKey:@"complete"];
         [self.data appendData: [data objectForKey:@"data"]];
+        NSLog(@"self data length: %lu", (unsigned long)[self.data length]);
+        self -> latestAddedFregmentId = fregmentId;
+        [self -> queueDataMap removeObjectForKey:stringId];
     }
 }
 
-- (void) loadStartFregment: (void (^)(void))successHandler :(void (^)(void))failedHandler {
+- (void) loadStartFregment: (void (^)(void))successHandler :(void (^)(NSInteger code))failedHandler {
     int currentFregmentId = self -> currentFregmentId;
     // 1. load the N - 2 and N - 1
     NSDate *date = [NSDate date];
@@ -299,7 +333,7 @@ static LISRadioDataNew *radioData;
     }
 }
 
-- (NSURLSessionDataTask *) loadFregmentWith: (int)fregmentId :(void (^)(NSData *data))successHandler :(void (^)(void))failedHander {
+- (NSURLSessionDataTask *) loadFregmentWith: (int)fregmentId :(void (^)(NSData *data))successHandler :(void (^)(NSInteger code))failedHander {
     NSLog(@"load fregment: %d", fregmentId);
     NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
     NSTimeInterval nowTime = [date timeIntervalSince1970];
@@ -313,7 +347,7 @@ static LISRadioDataNew *radioData;
     NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSURLResponse * _Nullable response, NSError * _Nullable error) {
         if (nil != error) {
             NSLog(@"load with error: %d", fregmentId);
-            failedHander();
+            failedHander(error.code);
             return;
         }
         if (self -> doneFregmentId >= fregmentId) {
@@ -324,7 +358,6 @@ static LISRadioDataNew *radioData;
         NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
         NSTimeInterval loadDone = [date timeIntervalSince1970];
         NSLog(@"done: %d, time: %f", fregmentId, loadDone - nowTime);
-        
     }];
     [task resume];
     return task;
@@ -332,8 +365,9 @@ static LISRadioDataNew *radioData;
 
 - (int) generateCurrentFregmentId {
     NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
-    NSTimeInterval time = [date timeIntervalSince1970];
-    int fregmentId = (int)((double)time / [self.radioInfo.duration doubleValue]);
+    NSTimeInterval timestamp = floor([date timeIntervalSince1970]);
+    NSNumber *duration = self.radioInfo.fregmentDuration;
+    int fregmentId = (int)((double)timestamp / [duration doubleValue]) - 1;
     return fregmentId - 1;
 }
 

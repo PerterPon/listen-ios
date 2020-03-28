@@ -10,7 +10,6 @@
 		28A330616070E47170BAF887 /* libPods-listen-iosTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = F644ACEE748594CB15979913 /* libPods-listen-iosTests.a */; };
 		80E4EDCD2BB26F9820D17F5F /* libPods-listen-iosUITests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0F347D5B69B11DAA9874585E /* libPods-listen-iosUITests.a */; };
 		F3EAC832345953D0217CB887 /* libPods-listen-ios.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 73C22A9ABC705D519988BC32 /* libPods-listen-ios.a */; };
-		FA01D27322D22DD000A71CCE /* LISConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = FA01D27222D22DD000A71CCE /* LISConnection.m */; };
 		FA01D27622D22DE200A71CCE /* LISPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = FA01D27522D22DE200A71CCE /* LISPlayer.m */; };
 		FA01D27922D2304D00A71CCE /* LISEtc.m in Sources */ = {isa = PBXBuildFile; fileRef = FA01D27822D2304D00A71CCE /* LISEtc.m */; };
 		FA0F72D4241F5C30000A12E3 /* LISRadioDataNew.m in Sources */ = {isa = PBXBuildFile; fileRef = FA0F72D3241F5C30000A12E3 /* LISRadioDataNew.m */; };
@@ -28,9 +27,6 @@
 		FA65D7AC230C43CB00ABA5DA /* UIWindow+DCLog.m in Sources */ = {isa = PBXBuildFile; fileRef = FA65D7A9230C43CB00ABA5DA /* UIWindow+DCLog.m */; };
 		FA65D7AD230C43CB00ABA5DA /* DCLogView.m in Sources */ = {isa = PBXBuildFile; fileRef = FA65D7AA230C43CB00ABA5DA /* DCLogView.m */; };
 		FA65D7AF230CEFD500ABA5DA /* mute.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = FA65D7AE230CEFD500ABA5DA /* mute.mp3 */; };
-		FA735906230949610038AF24 /* LISRadioData.m in Sources */ = {isa = PBXBuildFile; fileRef = FA735905230949610038AF24 /* LISRadioData.m */; };
-		FA7DFC2722D38E4700AFF9D2 /* LISData.m in Sources */ = {isa = PBXBuildFile; fileRef = FA7DFC2622D38E4700AFF9D2 /* LISData.m */; };
-		FAADA4E5231133D0005A7B59 /* LISQueueData.m in Sources */ = {isa = PBXBuildFile; fileRef = FAADA4E4231133D0005A7B59 /* LISQueueData.m */; };
 		FAB2C67622D8FDDA00D11ADF /* bbc.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = FAB2C67522D8FDDA00D11ADF /* bbc.mp3 */; };
 		FAB2C68E22D9BFCD00D11ADF /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB2C68D22D9BFCC00D11ADF /* CoreMedia.framework */; };
 		FAB2C69022D9BFD300D11ADF /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB2C68F22D9BFD300D11ADF /* CoreGraphics.framework */; };
@@ -40,7 +36,6 @@
 		FAB2C6A822D9D24700D11ADF /* libz.1.2.5.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB2C6A722D9D24700D11ADF /* libz.1.2.5.tbd */; };
 		FAB2C6AA22D9D25300D11ADF /* libbz2.1.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB2C6A922D9D25300D11ADF /* libbz2.1.0.tbd */; };
 		FAB2C6AC22D9D26000D11ADF /* libiconv.2.4.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB2C6AB22D9D26000D11ADF /* libiconv.2.4.0.tbd */; };
-		FACC1ECE2303FC58001F7CA3 /* ListenPlayer.m in Sources */ = {isa = PBXBuildFile; fileRef = FACC1ECD2303FC58001F7CA3 /* ListenPlayer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -70,8 +65,6 @@
 		E0AF3268074C28CD9F0CEB91 /* Pods-listen-ios.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-listen-ios.release.xcconfig"; path = "Target Support Files/Pods-listen-ios/Pods-listen-ios.release.xcconfig"; sourceTree = "<group>"; };
 		F5EEEC50CE45F7274FAD4F63 /* Pods-listen-iosUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-listen-iosUITests.debug.xcconfig"; path = "Target Support Files/Pods-listen-iosUITests/Pods-listen-iosUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		F644ACEE748594CB15979913 /* libPods-listen-iosTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-listen-iosTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		FA01D27122D22DD000A71CCE /* LISConnection.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LISConnection.h; sourceTree = "<group>"; };
-		FA01D27222D22DD000A71CCE /* LISConnection.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LISConnection.m; sourceTree = "<group>"; };
 		FA01D27422D22DE200A71CCE /* LISPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LISPlayer.h; sourceTree = "<group>"; };
 		FA01D27522D22DE200A71CCE /* LISPlayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LISPlayer.m; sourceTree = "<group>"; };
 		FA01D27722D2304D00A71CCE /* LISEtc.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LISEtc.h; sourceTree = "<group>"; };
@@ -104,12 +97,6 @@
 		FA65D7A9230C43CB00ABA5DA /* UIWindow+DCLog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "UIWindow+DCLog.m"; path = "DCLog/UIWindow+DCLog.m"; sourceTree = "<group>"; };
 		FA65D7AA230C43CB00ABA5DA /* DCLogView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = DCLogView.m; path = DCLog/DCLogView.m; sourceTree = "<group>"; };
 		FA65D7AE230CEFD500ABA5DA /* mute.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = mute.mp3; sourceTree = "<group>"; };
-		FA735904230949610038AF24 /* LISRadioData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LISRadioData.h; sourceTree = "<group>"; };
-		FA735905230949610038AF24 /* LISRadioData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LISRadioData.m; sourceTree = "<group>"; };
-		FA7DFC2522D38E4700AFF9D2 /* LISData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LISData.h; sourceTree = "<group>"; };
-		FA7DFC2622D38E4700AFF9D2 /* LISData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LISData.m; sourceTree = "<group>"; };
-		FAADA4E3231133D0005A7B59 /* LISQueueData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = LISQueueData.h; sourceTree = "<group>"; };
-		FAADA4E4231133D0005A7B59 /* LISQueueData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LISQueueData.m; sourceTree = "<group>"; };
 		FAB2C67522D8FDDA00D11ADF /* bbc.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = bbc.mp3; sourceTree = "<group>"; };
 		FAB2C67F22D9AC4100D11ADF /* libmp3lame.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmp3lame.a; path = "listen-ios/lame/libmp3lame.a"; sourceTree = "<group>"; };
 		FAB2C68D22D9BFCC00D11ADF /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
@@ -127,8 +114,6 @@
 		FAB2C6A722D9D24700D11ADF /* libz.1.2.5.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.5.tbd; path = usr/lib/libz.1.2.5.tbd; sourceTree = SDKROOT; };
 		FAB2C6A922D9D25300D11ADF /* libbz2.1.0.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libbz2.1.0.tbd; path = usr/lib/libbz2.1.0.tbd; sourceTree = SDKROOT; };
 		FAB2C6AB22D9D26000D11ADF /* libiconv.2.4.0.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libiconv.2.4.0.tbd; path = usr/lib/libiconv.2.4.0.tbd; sourceTree = SDKROOT; };
-		FACC1ECC2303FC58001F7CA3 /* ListenPlayer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ListenPlayer.h; sourceTree = "<group>"; };
-		FACC1ECD2303FC58001F7CA3 /* ListenPlayer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ListenPlayer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -247,26 +232,16 @@
 				FA65D7AA230C43CB00ABA5DA /* DCLogView.m */,
 				FA65D7A8230C43CB00ABA5DA /* UIWindow+DCLog.h */,
 				FA65D7A9230C43CB00ABA5DA /* UIWindow+DCLog.m */,
-				FA01D27122D22DD000A71CCE /* LISConnection.h */,
-				FA01D27222D22DD000A71CCE /* LISConnection.m */,
 				FA65D7AE230CEFD500ABA5DA /* mute.mp3 */,
 				FAB2C67522D8FDDA00D11ADF /* bbc.mp3 */,
 				FA01D27422D22DE200A71CCE /* LISPlayer.h */,
 				FA01D27522D22DE200A71CCE /* LISPlayer.m */,
-				FACC1ECC2303FC58001F7CA3 /* ListenPlayer.h */,
-				FACC1ECD2303FC58001F7CA3 /* ListenPlayer.m */,
 				FA35DAFE22F7266F0009A662 /* LISQueuePlayer.h */,
 				FA35DAFF22F7266F0009A662 /* LISQueuePlayer.m */,
 				FA01D27722D2304D00A71CCE /* LISEtc.h */,
 				FA01D27822D2304D00A71CCE /* LISEtc.m */,
-				FA7DFC2522D38E4700AFF9D2 /* LISData.h */,
-				FA7DFC2622D38E4700AFF9D2 /* LISData.m */,
 				FA0F72D2241F5C30000A12E3 /* LISRadioDataNew.h */,
 				FA0F72D3241F5C30000A12E3 /* LISRadioDataNew.m */,
-				FA735904230949610038AF24 /* LISRadioData.h */,
-				FA735905230949610038AF24 /* LISRadioData.m */,
-				FAADA4E3231133D0005A7B59 /* LISQueueData.h */,
-				FAADA4E4231133D0005A7B59 /* LISQueueData.m */,
 			);
 			path = "listen-ios";
 			sourceTree = "<group>";
@@ -501,13 +476,8 @@
 				FA65D7AB230C43CB00ABA5DA /* DCLog.m in Sources */,
 				FA4E5DF822D1FE1200E679EF /* main.m in Sources */,
 				FA0F72D4241F5C30000A12E3 /* LISRadioDataNew.m in Sources */,
-				FA735906230949610038AF24 /* LISRadioData.m in Sources */,
-				FA01D27322D22DD000A71CCE /* LISConnection.m in Sources */,
-				FACC1ECE2303FC58001F7CA3 /* ListenPlayer.m in Sources */,
 				FA4E5DF022D1FE1100E679EF /* listen_ios.xcdatamodeld in Sources */,
 				FA01D27922D2304D00A71CCE /* LISEtc.m in Sources */,
-				FA7DFC2722D38E4700AFF9D2 /* LISData.m in Sources */,
-				FAADA4E5231133D0005A7B59 /* LISQueueData.m in Sources */,
 				FA01D27622D22DE200A71CCE /* LISPlayer.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
