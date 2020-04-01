@@ -11,7 +11,8 @@
 #import <NSString+MD5.h>
 //#import "LISData.h"
 //#import "LISRadioData.h"
-#import "LISQueueData.h"
+//#import "LISQueueData.h"
+#import "LISRadioDataNew.h"
 
 #define NUM_BUFFERS 3
 static UInt32 gBufferSizeBytes = 0x8000;//It muse be pow(2,x)
@@ -42,7 +43,7 @@ static OSStatus readProc(
                          void   *buffer,
                          UInt32 *actualCount
                          ) {
-    LISQueueData *lisData = [LISQueueData shareInstance];
+    LISRadioDataNew *lisData = [LISRadioDataNew shareInstance];
     
     size_t bytes_to_read = requestCount;
     
@@ -54,12 +55,12 @@ static OSStatus readProc(
     
     NSRange range = NSMakeRange(position, bytes_to_read);
     [lisData.data getBytes:buffer range:range];
-    
+//    NSLog(@"read data length: %d, data remain lengeh: %lu", requestCount, (unsigned long)lisData.data.length);
     return noErr;
 }
 
 static SInt64 getSizeProc(void *inClientData) {
-    LISQueueData *lisData = [LISQueueData shareInstance];
+    LISRadioDataNew *lisData = [LISRadioDataNew shareInstance];
     size_t dataSize = lisData.data.length;
     return dataSize;
 }
@@ -117,7 +118,11 @@ static void BufferCallback(void *inUserData,AudioQueueRef inAQ,
         if (0 != buffer -> mAudioDataByteSize) {
             break;
         }
-        [self readPacketTo:buffer];
+        NSLog(@"refillBuffes");
+        int res = [self readPacketTo:buffer];
+        if (2 == res) {
+            break;
+        }
         buffer = buffer -> mUserData;
     }
 }
@@ -200,14 +205,18 @@ static void BufferCallback(void *inUserData,AudioQueueRef inAQ,
         if (nil == latestBuffer) {
             latestBuffer = buffer;
         }
-        [self checkAllBufferStatus];
-        return 1;
+        BOOL result = [self checkAllBufferStatus];
+        if (NO == result) {
+            return 2;
+        } else {
+            return 1;
+        }
     }
 
     if (numPackets > 0) {
         buffer -> mAudioDataByteSize = numBytes;
         AudioQueueEnqueueBuffer(queue, buffer, (packetDesc ? numPackets : 0), packetDesc);
-        LISQueueData *lisData = [LISQueueData shareInstance];
+        LISRadioDataNew *lisData = [LISRadioDataNew shareInstance];
         [lisData.data replaceBytesInRange:NSMakeRange(0, numBytes) withBytes:NULL length:0];
 //        NSLog(@"data remain lengeh: %lu", (unsigned long)lisData.data.length);
         return 0;
@@ -216,7 +225,7 @@ static void BufferCallback(void *inUserData,AudioQueueRef inAQ,
     }
 }
 
-- (void) checkAllBufferStatus {
+- (BOOL) checkAllBufferStatus {
     int avaliableBuffers = 0;
     for (int i = 0; i < NUM_BUFFERS; i++) {
         if (0 != buffers[i] -> mAudioDataByteSize) {
@@ -228,6 +237,9 @@ static void BufferCallback(void *inUserData,AudioQueueRef inAQ,
         NSLog(@"暂停");
         self.playying = NO;
         AudioQueuePause(queue);
+        return NO;
+    } else {
+        return YES;
     }
 }
 

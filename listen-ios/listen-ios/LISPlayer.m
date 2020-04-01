@@ -7,7 +7,8 @@
 //
 
 #import "LISPlayer.h"
-#import "LISData.h"
+//#import "LISData.h"
+#import "LISRadioDataNew.h"
 #import <AVFoundation/AVFoundation.h>
 
 #define SAMPLE_RATE 48000
@@ -46,7 +47,7 @@ static LISPlayer *player = nil;
 
 - (void) pause {
     [self.queuePlayer pause];
-    [[LISQueueData shareInstance] pause];
+    [[LISRadioDataNew shareInstance] pause];
 }
 
 - (void) play {
@@ -55,7 +56,7 @@ static LISPlayer *player = nil;
 
 - (void) resume {
     [self.queuePlayer resume];
-    [[LISQueueData shareInstance] resume];
+    [[LISRadioDataNew shareInstance] resume];
 }
 
 - (void) stop {
@@ -66,15 +67,22 @@ static LISPlayer *player = nil;
     self.queuePlayer = [[LISQueuePlayer alloc] init];
     [self.queuePlayer initQueue];
     [self.queuePlayer play];
+    
 }
 
 #pragma mark - lisRadioData delegate
 
--(void) onFirstDataReceived {
-    [self startPlay];
+- (void) onFirstDataReceived {
+    if (nil == self.queuePlayer) {
+        [self startPlay];
+    } else {
+        [self onDataReceived];
+    }
 }
 
--(void) onDataReceived {
+- (void) onDataReceived {
+    NSLog(@"onDataReceived, %d", self.queuePlayer.playying ? 1 : 0);
+//    NSLog(self.queuePlayer.playying);
     if (NO == self.queuePlayer.playying) {
         [self.queuePlayer refillBuffes];
         [self.queuePlayer play];
@@ -84,12 +92,12 @@ static LISPlayer *player = nil;
 #pragma mark - lisData delegate
 
 -(void) dataDidReceiveFirstFregment {
-    LISData *data = [LISData shareInstance];
+    LISRadioDataNew *data = [LISRadioDataNew shareInstance];
     NSError *error;
 }
 
 -(void) dataDidReceiveMediaFregmentWithNumber:(int)number {
-    LISData *data = [LISData shareInstance];
+    LISRadioDataNew *data = [LISRadioDataNew shareInstance];
     if (1 == number) {
         [self startPlay];
     } else if (NO == self.queuePlayer.playying) {

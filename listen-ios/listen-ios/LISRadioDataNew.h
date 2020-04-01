@@ -1,9 +1,9 @@
 //
-//  LISRadioData.h
+//  LISRadioDataNew.h
 //  listen-ios
 //
-//  Created by PerterPon on 2019/8/18.
-//  Copyright © 2019 PerterPon. All rights reserved.
+//  Created by PerterPon on 2020/3/16.
+//  Copyright © 2020 PerterPon. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
@@ -27,7 +27,7 @@ struct RadioInfo {
 
 @end
 
-@interface LISRadioData : NSObject
+@interface LISRadioDataNew : NSObject
 
 +(instancetype) shareInstance;
 
