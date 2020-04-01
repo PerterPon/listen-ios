@@ -121,9 +121,15 @@ static LISRadioDataNew *radioData;
 }
 
 - (void) loadMuteData {
-    NSString *muteFile = [[NSBundle mainBundle] pathForResource:@"mute" ofType:@"mp3"];
+    NSString *muteFile = [[NSBundle mainBundle] pathForResource:@"bbc" ofType:@"mp3"];
     NSData *muteData = [NSData dataWithContentsOfFile:muteFile];
     [self.data appendData:muteData];
+}
+
+- (void) loadHeaderData {
+    NSString *headerFile = [[NSBundle mainBundle] pathForResource:@"header" ofType:@"mp3"];
+    NSData *headerData = [NSData dataWithContentsOfFile:headerFile];
+    [self.data appendData:headerData];
 }
 
 - (void) startQueue {
@@ -144,6 +150,9 @@ static LISRadioDataNew *radioData;
         self -> queueDataMap = [[NSMutableDictionary alloc] init];
         if (nil != latestData) {
             [self -> queueDataMap setObject:latestData forKey:latestId];
+            
+        }
+        if (nil != lastData) {
             [self -> queueDataMap setObject:lastData forKey:lastId];
         }
     } else {
@@ -156,6 +165,7 @@ static LISRadioDataNew *radioData;
         self.timer = nil;
     }
     self.data = [[NSMutableData alloc] init];
+    [self loadHeaderData];
     
     // 2. load start fregment
     [self loadStartFregment:^{
