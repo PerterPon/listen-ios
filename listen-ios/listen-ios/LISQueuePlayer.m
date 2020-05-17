@@ -104,6 +104,8 @@ static void BufferCallback(void *inUserData,AudioQueueRef inAQ,
             break;
         }
         buffer -> mAudioDataByteSize = 0;
+        
+        buffer = buffer -> mUserData;
     }
 }
 
@@ -173,8 +175,21 @@ static void BufferCallback(void *inUserData,AudioQueueRef inAQ,
         AudioQueueSetProperty(queue, kAudioQueueProperty_MagicCookie, cookie, size);
     }
     
+    [self initBuffers];
+    
+    latestBuffer = nil;
+    
+    Float32 gain = 2;
+    AudioQueueSetParameter(queue, kAudioQueueParam_Volume, gain);
+}
+
+- (void) initBuffers {
+    int i = 0;
     for (i = 0; i < NUM_BUFFERS; i++) {
         AudioQueueAllocateBuffer(queue, gBufferSizeBytes, &buffers[i]);
+    }
+    
+    for (i = 0; i < NUM_BUFFERS; i++) {
         int readResult = [self readPacketTo:buffers[i]];
         if (0 < i) {
             buffers[i - 1] -> mUserData = buffers[i];
@@ -186,11 +201,6 @@ static void BufferCallback(void *inUserData,AudioQueueRef inAQ,
             break;
         }
     }
-    
-    latestBuffer = nil;
-    
-    Float32 gain = 2;
-    AudioQueueSetParameter(queue, kAudioQueueParam_Volume, gain);
 }
 
 - (int) readPacketTo:(AudioQueueBufferRef) buffer {
@@ -199,7 +209,8 @@ static void BufferCallback(void *inUserData,AudioQueueRef inAQ,
     
     numPackets = numPacketsToRead;
     AudioFileReadPackets(audioFile, NO, &numBytes, packetDesc, 0, &numPackets, buffer->mAudioData);
-
+    
+//    AudioFileReadPacketData(audioFile, NO, &numBytes, packetDesc, 0, &numPackets, buffer->mAudioData);
     if (0 == numBytes) {
         buffer -> mAudioDataByteSize = 0;
         if (nil == latestBuffer) {

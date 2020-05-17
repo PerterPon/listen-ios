@@ -28,7 +28,7 @@
     [session setCategory:AVAudioSessionCategoryPlayback error:nil];
     [session setActive:YES error:nil];
     [self initApp];
-    [DCLog setLogViewEnabled:YES];
+    [DCLog setLogViewEnabled:NO];
     [[UIApplication sharedApplication] beginReceivingRemoteControlEvents];
 
     NSMutableDictionary *songDict = [NSMutableDictionary dictionary];

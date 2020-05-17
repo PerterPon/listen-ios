@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) NSString *name;
 @property (nonatomic, weak) id <LISPlayerDelegate> delegate;
 @property (nonatomic, strong) LISQueuePlayer *queuePlayer;
+@property (nonatomic) BOOL playying;
 
 +(instancetype) shareInstance;
 
