@@ -7,8 +7,12 @@
 //
 
 #import "ViewController.h"
+#import "LISPlayer.h"
 
 @interface ViewController ()
+{
+    UIButton *button;
+}
 
 @end
 
@@ -17,6 +21,28 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    [button addTarget:self action:@selector(onPlay) forControlEvents:UIControlEventTouchUpInside];
+    [button setTitle:@"pause" forState:UIControlStateNormal];
+    [button setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+    button.frame = CGRectMake(200, 500, 160, 40);
+    self -> button = button;
+    [self.view addSubview:button];
+}
+
+- (void) onPlay {
+    LISPlayer *player = [LISPlayer shareInstance];
+    BOOL playying = player.playying;
+    if (YES == playying) {
+        [player pause];
+        NSLog(@"pause done");
+        [button setTitle:@"play" forState:UIControlStateNormal];
+    } else {
+        [player resume];
+        NSLog(@"resume done");
+        [button setTitle:@"pause" forState:UIControlStateNormal];
+    }
 }
 
 @end

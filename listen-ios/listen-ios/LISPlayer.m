@@ -29,9 +29,6 @@ static LISPlayer *player = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         player = [[self alloc] init];
-        
-//        LISData *data = [LISData shareInstance];
-//        data.delegate = player;
     });
     
     return player;
@@ -46,28 +43,34 @@ static LISPlayer *player = nil;
 }
 
 - (void) pause {
+    NSLog(@"pause");
     [self.queuePlayer pause];
+    NSLog(@"1111");
     [[LISRadioDataNew shareInstance] pause];
+    NSLog(@"2222");
+    self.playying = NO;
 }
 
 - (void) play {
-    
+    self.playying = YES;
 }
 
 - (void) resume {
+    NSLog(@"resume");
     [self.queuePlayer resume];
     [[LISRadioDataNew shareInstance] resume];
+    self.playying = YES;
 }
 
 - (void) stop {
-//    [self.queuePlayer stop]
+    [[LISRadioDataNew shareInstance] stop];
 }
 
 -(void) startPlay {
     self.queuePlayer = [[LISQueuePlayer alloc] init];
     [self.queuePlayer initQueue];
     [self.queuePlayer play];
-    
+    self.playying = YES;
 }
 
 #pragma mark - lisRadioData delegate
@@ -81,7 +84,6 @@ static LISPlayer *player = nil;
 }
 
 - (void) onDataReceived {
-    NSLog(@"onDataReceived, %d", self.queuePlayer.playying ? 1 : 0);
 //    NSLog(self.queuePlayer.playying);
     if (NO == self.queuePlayer.playying) {
         [self.queuePlayer refillBuffes];

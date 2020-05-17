@@ -17,6 +17,8 @@ NS_ASSUME_NONNULL_BEGIN
     @property (nonatomic, assign) NSString *salt;
     @property (nonatomic, assign) NSString *cdnDomain;
 
+    @property (nonatomic, assign) NSNumber *startFregmentCount;
+
     +(instancetype) shareInstance;
     
     -(void) initConfig;
