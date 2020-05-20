@@ -196,7 +196,7 @@ static LISRadioDataNew *radioData;
         [self startNatureClock];
     } :^(NSInteger code){
         // if failed, recall ths function again.
-        NSLog(@"load start fegment failed! restart after 5 sec!, error code: [%ld]", code);
+//        NSLog(@"load start fegment failed! restart after 5 sec!, error code: [%ld]", code);
         NSTimer *startTimer = [NSTimer scheduledTimerWithTimeInterval:5 repeats:NO block:^(NSTimer * _Nonnull timer) {
             [self startTimeline];
         }];
@@ -224,7 +224,7 @@ static LISRadioDataNew *radioData;
     [self loadFregmentWith: requestFregmentId :^(NSData *data) {
 //        NSDate *endTime = [NSDate date];
         int nowFregmentId = self -> currentFregmentId;
-        NSLog(@"======= ticktock done: [%d]", nowFregmentId);
+//        NSLog(@"======= ticktock done: [%d]", nowFregmentId);
         // 1. first of all, this reqest is success, so we need insert data for this request.
 
         // 2. check the data sequence, if need abandon some data.
@@ -255,7 +255,7 @@ static LISRadioDataNew *radioData;
 
             // if internet connection was down, then we can wait 1 second to wait connect back.
             if (-1009 == code) {
-                NSLog(@"delay retry, %d", requestFregmentId);
+//                NSLog(@"delay retry, %d", requestFregmentId);
                 NSTimer *timer = [NSTimer timerWithTimeInterval:1.0 repeats:NO block:^(NSTimer * _Nonnull timer) {
                     [self ticktock:currentRetryTimes];
                 }];
@@ -272,7 +272,7 @@ static LISRadioDataNew *radioData;
     NSMutableArray *result = [[NSMutableArray alloc] init];
     int latestFregmentId = self -> latestAddedFregmentId;
     // if the request fregment id did not equal to
-    NSLog(@"requestFregmentId: %d, latestFregmentId: %d", requestFregmentId, latestFregmentId);
+//    NSLog(@"requestFregmentId: %d, latestFregmentId: %d", requestFregmentId, latestFregmentId);
     if (1 != requestFregmentId - latestFregmentId) {
         return result;
     }
@@ -298,7 +298,7 @@ static LISRadioDataNew *radioData;
     if (data) {
 //        [data setObject:@1 forKey:@"complete"];
         [self.data appendData: [data objectForKey:@"data"]];
-        NSLog(@"self data length: %lu", (unsigned long)[self.data length]);
+//        NSLog(@"self data length: %lu", (unsigned long)[self.data length]);
         self -> latestAddedFregmentId = fregmentId;
         [self -> queueDataMap removeObjectForKey:stringId];
     }
@@ -377,12 +377,12 @@ static LISRadioDataNew *radioData;
 }
 
 - (void) loadFregmentWith: (int)fregmentId :(void (^)(NSData *data))successHandler :(void (^)(NSInteger code))failedHander {
-    NSLog(@"load fregment: %d", fregmentId);
+//    NSLog(@"load fregment: %d", fregmentId);
     // 1. first judge if we already have cache.
     NSString *cacheId = [NSString stringWithFormat:@"%d", fregmentId];
     NSMutableDictionary *cacheData = [self -> queueDataMap objectForKey:cacheId];
     if (nil != cacheData) {
-        NSLog(@"fregment have cache, just return.");
+//        NSLog(@"fregment have cache, just return.");
         successHandler(cacheData[@"data"]);
         return;
     }
@@ -422,7 +422,11 @@ static LISRadioDataNew *radioData;
 
         NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
         NSTimeInterval loadDone = [date timeIntervalSince1970];
-        NSLog(@"done: %d, time: %f", fregmentId, loadDone - nowTime);
+        NSTimeInterval time = loadDone - nowTime;
+        if (time > 4) {
+            NSLog(@"long load fregment: [%@], time: [%f]", fregmentId, time);
+        }
+//        NSLog(@"done: %d, time: %f", fregmentId, loadDone - nowTime);
     }];
     [task resume];
 //    return task;
@@ -432,24 +436,17 @@ static LISRadioDataNew *radioData;
     NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
     NSTimeInterval timestamp = floor([date timeIntervalSince1970]);
     NSNumber *duration = self.radioInfo.fregmentDuration;
-    int fregmentId = 0;
-    if (0 == self -> latestGenerateId || 0 == self -> latestGenerateTime) {
-        self -> latestGenerateId = fregmentId;
-        self -> latestGenerateTime = timestamp;
-        fregmentId = (int)((double)timestamp / [duration doubleValue]) - 1;
-    } else {
-        
-        if (timestamp - self -> latestGenerateTime < [duration doubleValue] * 1.2) {
-            fregmentId = self -> latestGenerateId++;
-        }
-        
-        // buffer time: 1.2.
-        BOOL invalidTime = timestamp - self -> latestGenerateTime < [duration doubleValue] * 1.2;
-        BOOL invalidId = fregmentId - self -> latestGenerateId > 1;
-        if (YES == invalidTime && YES == invalidId) {
-            fregmentId = self -> latestGenerateId + 1;
-        }
+    int fregmentId = (int)((double)timestamp / [duration doubleValue]) - 1;
+    if (
+        0 != self -> latestGenerateId &&
+        0 == self -> latestGenerateTime &&
+        timestamp - self -> latestGenerateTime < [duration doubleValue] * 1.5
+        ) {
+        fregmentId = self -> latestGenerateId++;
     }
+
+    self -> latestGenerateId = fregmentId;
+    self -> latestGenerateTime = timestamp;
     return fregmentId - 1;
 }
 

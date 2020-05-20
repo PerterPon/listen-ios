@@ -26,7 +26,7 @@
     [button addTarget:self action:@selector(onPlay) forControlEvents:UIControlEventTouchUpInside];
     [button setTitle:@"pause" forState:UIControlStateNormal];
     [button setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-    button.frame = CGRectMake(200, 500, 160, 40);
+    button.frame = CGRectMake(150, 400, 160, 40);
     self -> button = button;
     [self.view addSubview:button];
 }
@@ -36,11 +36,9 @@
     BOOL playying = player.playying;
     if (YES == playying) {
         [player pause];
-        NSLog(@"pause done");
         [button setTitle:@"play" forState:UIControlStateNormal];
     } else {
         [player resume];
-        NSLog(@"resume done");
         [button setTitle:@"pause" forState:UIControlStateNormal];
     }
 }
